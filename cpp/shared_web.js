@@ -111,19 +111,7 @@ function CanvasComponent ( container, state ) {
 
 class Layout extends GoldenLayout {
   constructor ( options ) {
-    let layoutConfig = localStorage.getItem( options.configKey );
-    if ( layoutConfig ) {
-      layoutConfig = JSON.parse( layoutConfig );
-    } else {
-      layoutConfig = options.defaultLayoutConfig;
-    }
-
-    super( layoutConfig, $( '#layout' ) );
-
-    this.on( 'stateChanged', debounceLazy( () => {
-      const state = JSON.stringify( this.toConfig() );
-      localStorage.setItem( options.configKey, state );
-    }, 500 ) );
+    super( options.defaultLayoutConfig, $( '#layout' ) );
 
     this.on( 'stackCreated', stack => {
       const fontSizeEl = document.createElement( 'div' );

@@ -68,17 +68,7 @@ function initLayout () {
 
   layout.registerComponent( 'asmEditor', AsmEditorComponent );
   layout.init();
-}
-
-function resetLayout () {
-  localStorage.removeItem( LAYOUT_CONFIG_KEY );
-  if ( layout ) {
-    layout.destroy();
-    layout = null;
-  }
-  initLayout();
-}
-
+};
 
 // Toolbar stuff
 let triple = 'x86_64';

@@ -54,15 +54,6 @@ function initLayout () {
   layout.init();
 }
 
-function resetLayout () {
-  localStorage.removeItem( 'layoutConfig' );
-  if ( layout ) {
-    layout.destroy();
-    layout = null;
-  }
-  initLayout();
-}
-
 // Toolbar stuff
 $( '#reset' ).on( 'click', event => { if ( confirm( 'really reset?' ) ) resetLayout() } );
 $( '#run' ).on( 'click', event => run( editor ) );
