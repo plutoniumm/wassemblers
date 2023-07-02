@@ -1,6 +1,6 @@
-function sleep ( ms ) {
-  return new Promise( ( resolve, _ ) => setTimeout( resolve, ms ) );
-}
+const sleep = ( ms ) => new Promise(
+  ( resolve, _ ) => setTimeout( resolve, ms )
+);
 
 function readStr ( u8, o, len = -1 ) {
   let str = '';
@@ -78,7 +78,7 @@ const API = ( function () {
   }
 
   function msToSec ( start, end ) {
-    return ( ( end - start ) / 1000 ).toFixed( 2 );
+    return ( ( ( end - start ) / 10 ) | 0 ) / 100;
   }
 
   const ESUCCESS = 0;
@@ -139,7 +139,8 @@ const API = ( function () {
 
       // Imports for memfs module.
       const env = getImportObject(
-        this, [ 'abort', 'host_write', 'memfs_log', 'copy_in', 'copy_out' ] );
+        this, [ 'abort', 'host_write', 'memfs_log', 'copy_in', 'copy_out' ]
+      );
 
       this.ready = compileStreaming( this.memfsFilename )
         .then( module => WebAssembly.instantiate( module, { env } ) )
@@ -181,7 +182,9 @@ const API = ( function () {
       return new Uint8Array( this.mem.buffer, addr, size );
     }
 
-    abort () { throw new AbortError(); }
+    abort () {
+      throw new AbortError();
+    }
 
     host_write ( fd, iovs, iovs_len, nwritten_out ) {
       this.hostMem_.check();
@@ -318,22 +321,19 @@ const API = ( function () {
           // Don't allow rAF unless you return the right code.
           console.log( `Disallowing rAF since exit code is ${ exn.code }.` );
           this.allowRequestAnimationFrame = false;
-          if ( exn.code == 0 ) {
-            return false;
-          }
+          if ( exn.code == 0 ) return false;
           writeStack = false;
         }
 
         // Write error message.
         let msg = `\x1b[91mError: ${ exn.message }`;
-        if ( writeStack ) {
+        if ( writeStack )
           msg = msg + `\n${ exn.stack }`;
-        }
+
         msg += '\x1b[0m\n';
         this.memfs.hostWrite( msg );
 
-        // Propagate error.
-        throw exn;
+        throw exn; // Propagate error
       }
     }
 
@@ -648,19 +648,19 @@ const API = ( function () {
       const result = await promise;
       const end = +new Date();
       this.hostWrite( ' done.' );
-      if ( this.showTiming ) {
-        const green = '\x1b[92m';
-        const normal = '\x1b[0m';
-        this.hostWrite( ` ${ green }(${ msToSec( start, end ) }s)${ normal }\n` );
-      }
+      if ( this.showTiming )
+        this.hostWrite( `\x1b[92m(${ msToSec( start, end ) }s)\x1b[0m\n` );
+
       this.hostWrite( '\n' );
       return result;
     }
 
     async getModule ( name ) {
       if ( this.moduleCache[ name ] ) return this.moduleCache[ name ];
-      const module = await this.hostLogAsync( `Fetching and compiling ${ name }`,
-        this.compileStreaming( name ) );
+      const module = await this.hostLogAsync(
+        `Fetching and compiling ${ name }`,
+        this.compileStreaming( name )
+      );
       this.moduleCache[ name ] = module;
       return module;
     }
@@ -700,14 +700,16 @@ const API = ( function () {
       this.memfs.addFile( input, contents );
       const clang = await this.getModule( this.clangFilename );
       try {
-        await this.run( clang, 'clang', '-cc1', '-S', ...this.clangCommonArgs,
+        await this.run(
+          clang, 'clang', '-cc1', '-S', ...this.clangCommonArgs,
           `-triple=${ triple }`, '-mllvm', '--x86-asm-syntax=intel',
           `-O${ opt }`, '-std=c++17', '-o', output, '-x', 'c++',
-          input );
+          input
+        );
       } catch ( exn ) {
-        if ( !( exn instanceof ProcExit ) ) {
+        if ( !( exn instanceof ProcExit ) )
           throw exn;
-        }
+
         return '';
       }
       return this.memfs.getFileContents( output );
@@ -724,7 +726,8 @@ const API = ( function () {
         lld, 'wasm-ld', '--no-threads',
         '--export-dynamic',  // TODO required?
         '-z', `stack-size=${ stackSize }`, `-L${ libdir }`, crt1, obj, '-lc',
-        '-lc++', '-lc++abi', '-lcanvas', '-o', wasm )
+        '-lc++', '-lc++abi', '-lcanvas', '-o', wasm
+      )
     }
 
     async run ( module, ...args ) {
@@ -735,11 +738,11 @@ const API = ( function () {
       const stillRunning = await app.run();
       const end = +new Date();
       this.hostWrite( '\n' );
+
       if ( this.showTiming ) {
-        const green = '\x1b[92m';
-        const normal = '\x1b[0m';
-        let msg = `${ green }(${ msToSec( start, instantiate ) }s`;
-        msg += `/${ msToSec( instantiate, end ) }s)${ normal }\n`;
+        let msg =
+          `\x1b[92m(${ msToSec( start, instantiate ) }s` +
+          `/${ msToSec( instantiate, end ) }s)\x1b[0m\n`;
         this.hostWrite( msg );
       }
       return stillRunning ? app : null;
@@ -767,5 +770,4 @@ const API = ( function () {
   }
 
   return API;
-
 } )();

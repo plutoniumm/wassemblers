@@ -7,8 +7,8 @@ let ctx2d;
 
 const apiOptions = {
   async readBuffer ( filename ) {
-    const response = await fetch( filename );
-    return response.arrayBuffer();
+    return await fetch( filename )
+      .then( r => r.arrayBuffer() );
   },
 
   async compileStreaming ( filename ) {
