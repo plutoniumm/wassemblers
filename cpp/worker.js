@@ -22,7 +22,12 @@ const apiOptions = {
     }
   },
 
-  hostWrite ( s ) { port.postMessage( { id: 'write', data: s } ); }
+  hostWrite ( s ) {
+    port.postMessage( {
+      id: 'write',
+      data: s
+    } );
+  }
 };
 
 let currentApp = null;

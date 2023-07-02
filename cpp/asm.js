@@ -37,22 +37,25 @@ function initLayout () {
     },
     content: [ {
       type: 'row',
-      content: [ {
-        type: 'component',
-        componentName: 'editor',
-        componentState: { fontSize: 18, value: initialProgram },
-      }, {
-        type: 'column',
-        content: [ {
+      content: [
+        {
           type: 'component',
-          componentName: 'terminal',
-          componentState: { fontSize: 18 },
-        }, {
-          type: 'component',
-          componentName: 'asmEditor',
-          componentState: { fontSize: 18 },
-        } ]
-      } ]
+          componentName: 'editor',
+          componentState: { fontSize: 18, value: initialProgram },
+        },
+        {
+          type: 'column',
+          content: [ {
+            type: 'component',
+            componentName: 'terminal',
+            componentState: { fontSize: 18 },
+          }, {
+            type: 'component',
+            componentName: 'asmEditor',
+            componentState: { fontSize: 18 },
+          } ]
+        }
+      ]
     } ]
   };
 
@@ -85,13 +88,19 @@ $( '#opt' ).on( 'input', event => setOpt( event.target.value ) );
 const compile = debounceLazy( async () => {
   const [ input, output ] = [ 'test.cc', 'test.S' ];
   const contents = editor.getValue();
-  const outputBuf =
-    await api.compileToAssembly( { input, output, contents, triple, opt } );
+  const outputBuf = await api.compileToAssembly( {
+    input,
+    output,
+    contents,
+    triple,
+    opt
+  } );
   let str = '';
   if ( outputBuf ) {
     const u8 = new Uint8Array( outputBuf );
     str = readStr( u8, 0, u8.length );
   }
+
   if ( asmEditor ) {
     asmEditor.setValue( str );
     asmEditor.clearSelection();

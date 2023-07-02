@@ -58,5 +58,4 @@ function initLayout () {
 $( '#reset' ).on( 'click', event => { if ( confirm( 'really reset?' ) ) resetLayout() } );
 $( '#run' ).on( 'click', event => run( editor ) );
 
-
 initLayout();

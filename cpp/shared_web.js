@@ -167,12 +167,16 @@ class WorkerAPI {
     this.port.onmessage = this.onmessage.bind( this );
 
     const remotePort = channel.port2;
-    this.worker.postMessage( { id: 'constructor', data: remotePort },
-      [ remotePort ] );
+    this.worker.postMessage(
+      { id: 'constructor', data: remotePort },
+      [ remotePort ]
+    );
   }
 
   setShowTiming ( value ) {
-    this.port.postMessage( { id: 'setShowTiming', data: value } );
+    this.port.postMessage( {
+      id: 'setShowTiming', data: value
+    } );
   }
 
   terminate () {
@@ -193,12 +197,16 @@ class WorkerAPI {
   }
 
   compileLinkRun ( contents ) {
-    this.port.postMessage( { id: 'compileLinkRun', data: contents } );
+    this.port.postMessage( {
+      id: 'compileLinkRun', data: contents
+    } );
   }
 
   postCanvas ( offscreenCanvas ) {
-    this.port.postMessage( { id: 'postCanvas', data: offscreenCanvas },
-      [ offscreenCanvas ] );
+    this.port.postMessage(
+      { id: 'postCanvas', data: offscreenCanvas },
+      [ offscreenCanvas ]
+    );
   }
 
   onmessage ( event ) {
