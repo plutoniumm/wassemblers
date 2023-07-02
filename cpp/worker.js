@@ -40,10 +40,6 @@ const onAnyMessage = async event => {
       api = new API( apiOptions );
       break;
 
-    case 'setShowTiming':
-      api.showTiming = event.data.data;
-      break;
-
     case 'compileToAssembly': {
       const responseId = event.data.responseId;
       let output = null;

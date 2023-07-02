@@ -617,7 +617,6 @@ const API = ( function () {
       this.clangFilename = options.clang || 'clang';
       this.lldFilename = options.lld || 'lld';
       this.sysrootFilename = options.sysroot || 'sysroot.tar';
-      this.showTiming = options.showTiming || false;
 
       this.clangCommonArgs = [
         '-disable-free',
@@ -650,9 +649,7 @@ const API = ( function () {
       const result = await promise;
       const end = +new Date();
       this.hostWrite( ' done.' );
-      if ( this.showTiming )
-        this.hostWrite( `\x1b[92m(${ msToSec( start, end ) }s)\x1b[0m\n` );
-
+      this.hostWrite( `\x1b[92m(${ msToSec( start, end ) }s)\x1b[0m\n` );
       this.hostWrite( '\n' );
       return result;
     }
@@ -741,12 +738,11 @@ const API = ( function () {
       const end = +new Date();
       this.hostWrite( '\n' );
 
-      if ( this.showTiming ) {
-        let msg =
-          `\x1b[92m(${ msToSec( start, instantiate ) }s` +
-          `/${ msToSec( instantiate, end ) }s)\x1b[0m\n`;
-        this.hostWrite( msg );
-      }
+      let msg =
+        `\x1b[92m(${ msToSec( start, instantiate ) }s` +
+        `/${ msToSec( instantiate, end ) }s)\x1b[0m\n`;
+      this.hostWrite( msg );
+
       return stillRunning ? app : null;
     }
 

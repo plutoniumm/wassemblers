@@ -29,12 +29,11 @@ $( '#openInput' ).on( 'change', async event => {
   editor.clearSelection();
 } );
 $( '#keyboard' ).on( 'input', event => setKeyboard( event.target.value ) );
-$( '#showTiming' ).on( 'click', event => { api.setShowTiming( event.target.checked ); } );
 
 function EditorComponent ( container, state ) {
   editor = ace.edit( container.getElement()[ 0 ] );
   editor.session.setMode( 'ace/mode/c_cpp' );
-  editor.setKeyboardHandler( 'ace/keyboard/vim' );
+  editor.setKeyboardHandler( 'ace/keyboard/sublime' );
   editor.setOption( 'fontSize', );
   editor.setValue( state.value || '' );
   editor.clearSelection();
@@ -171,12 +170,6 @@ class WorkerAPI {
       { id: 'constructor', data: remotePort },
       [ remotePort ]
     );
-  }
-
-  setShowTiming ( value ) {
-    this.port.postMessage( {
-      id: 'setShowTiming', data: value
-    } );
   }
 
   terminate () {
