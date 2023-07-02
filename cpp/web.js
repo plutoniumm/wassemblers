@@ -56,5 +56,5 @@ function initLayout () {
   layout.init();
 }
 
-$( '#run' ).on( 'click', e => run( editor ) );
+document.querySelector( '#run' ).addEventListener( 'click', e => run( editor ) );
 initLayout();

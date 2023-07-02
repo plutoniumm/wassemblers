@@ -11,8 +11,10 @@ const run = debounceLazy( editor => api.compileLinkRun( editor.getValue() ), 100
 const setKeyboard = name => editor.setKeyboardHandler( `ace/keyboard/${ name }` );
 
 // Toolbar stuff
-$( '#open' ).on( 'click', event => $( '#openInput' ).click() );
-$( '#openInput' ).on( 'change', async event => {
+document.querySelector( '#open' ).addEventListener( 'click', event => {
+  document.querySelector( '#openInput' ).click();
+} );
+document.querySelector( '#openInput' ).addEventListener( 'change', async event => {
   const file = event.target.files[ 0 ];
   event.target.value = null; // Clear so same file can be loaded multiple times.
 
@@ -28,7 +30,6 @@ $( '#openInput' ).on( 'change', async event => {
   editor.setValue( await readFile( file ) );
   editor.clearSelection();
 } );
-$( '#keyboard' ).on( 'input', event => setKeyboard( event.target.value ) );
 
 function EditorComponent ( container, state ) {
   editor = ace.edit( container.getElement()[ 0 ] );
@@ -110,7 +111,7 @@ function CanvasComponent ( container, state ) {
 
 class Layout extends GoldenLayout {
   constructor ( options ) {
-    super( options.defaultLayoutConfig, $( '#layout' ) );
+    super( options.defaultLayoutConfig, document.querySelector( '#layout' ) );
 
     this.on( 'stackCreated', stack => {
       const fontSizeEl = document.createElement( 'div' );
