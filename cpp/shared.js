@@ -138,9 +138,9 @@ const API = ( function () {
       this.hostMem_ = null;  // Set later when wired up to application.
 
       // Imports for memfs module.
-      const env = getImportObject(
-        this, [ 'abort', 'host_write', 'memfs_log', 'copy_in', 'copy_out' ]
-      );
+      const env = getImportObject( this, [
+        'abort', 'host_write', 'memfs_log', 'copy_in', 'copy_out'
+      ] );
 
       this.ready = compileStreaming( this.memfsFilename )
         .then( module => WebAssembly.instantiate( module, { env } ) )
@@ -239,6 +239,7 @@ const API = ( function () {
       this.handles = new Map();
       this.nextHandle = 0;
 
+      // Imports for application module
       const env = getImportObject( this, [
         'canvas_arc',
         'canvas_arcTo',
@@ -291,6 +292,7 @@ const API = ( function () {
         'canvas_translate',
       ] );
 
+      // Imports for WASI
       const wasi_unstable = getImportObject( this, [
         'proc_exit', 'environ_sizes_get', 'environ_get', 'args_sizes_get',
         'args_get', 'random_get', 'clock_time_get', 'poll_oneoff'
