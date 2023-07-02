@@ -20,5 +20,4 @@ void setup() {
   c.fillText(msg, (w - c.measureText(msg)) / 2, (h + 100) / 2);
 }
 
-void loop(double now, double elapsed) {
-}
+void loop(double now, double elapsed) {}

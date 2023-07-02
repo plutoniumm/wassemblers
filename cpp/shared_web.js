@@ -233,13 +233,3 @@ class WorkerAPI {
 }
 
 const api = new WorkerAPI();
-
-// ServiceWorker stuff
-if ( navigator.serviceWorker )
-  navigator.serviceWorker.register( './service_worker.js' )
-    .then( ( { scope } ) =>
-      console.log( 'Registration succeeded. Scope is ' + scope )
-    )
-    .catch( e =>
-      console.log( 'Registration failed with ' + e )
-    );

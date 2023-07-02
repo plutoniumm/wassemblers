@@ -1,9 +1,9 @@
+#include <canvas_main.h>
+
 #include <cmath>
 #include <cstdint>
 #include <random>
 #include <vector>
-
-#include <canvas_main.h>
 
 std::default_random_engine re{0};
 std::uniform_int_distribution<float> dist_x(50, 450);
@@ -20,7 +20,10 @@ ImageData image{w, h};
 
 struct Blob {
   Blob()
-      : x{dist_x(re)}, y{dist_y(re)}, dx{dist_dx(re)}, dy{dist_dy(re)},
+      : x{dist_x(re)},
+        y{dist_y(re)},
+        dx{dist_dx(re)},
+        dy{dist_dy(re)},
         r{dist_r(re)} {}
 
   float x, dx, y, dy, r;
@@ -28,10 +31,9 @@ struct Blob {
 
 std::vector<Blob> blobs{blobCount};
 
-void setup() {
-}
+void setup() {}
 
-void move(float &x, float &dx, float r, float canvas_r) {
+void move(float& x, float& dx, float r, float canvas_r) {
   float sum = x + dx;
   if (std::abs(canvas_r - sum) > (canvas_r - r)) {
     dx = -dx;
@@ -40,7 +42,7 @@ void move(float &x, float &dx, float r, float canvas_r) {
 }
 
 void loop(double now, double elapsed) {
-  for (auto& blob: blobs) {
+  for (auto& blob : blobs) {
     move(blob.x, blob.dx, blob.r, w / 2);
     move(blob.y, blob.dy, blob.r, h / 2);
   }
@@ -56,7 +58,7 @@ void loop(double now, double elapsed) {
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
       float sum = 0;
-      for (auto& blob: blobs) {
+      for (auto& blob : blobs) {
         sum += square(blob.r) / (square(x - blob.x) + square(y - blob.y));
       }
       float t = clamp(0, sum - 1, 1);

@@ -1,8 +1,8 @@
+#include <canvas_main.h>
+
 #include <cstdint>
 #include <random>
 #include <vector>
-
-#include <canvas_main.h>
 
 std::default_random_engine re{0};
 
@@ -11,7 +11,7 @@ const int h = 450;
 Canvas c{w, h};
 ImageData image{w, h};
 
-std::vector<uint8_t> pixels(w * h);
+std::vector<uint8_t> pixels(w* h);
 
 const std::vector<uint32_t> palette = {
     0xff070707, 0xff07071f, 0xff070f2f, 0xff070f47, 0xff071757, 0xff071f67,
@@ -23,7 +23,6 @@ const std::vector<uint32_t> palette = {
     0xffffffff,
 };
 
- 
 void setup() {
   for (int x = 0; x < w; ++x) {
     pixels[(h - 1) * w + x] = 36;
@@ -32,7 +31,7 @@ void setup() {
 
 void loop(double now, double elapsed) {
   std::uniform_int_distribution<int> dist{0, 2};
-  
+
   for (int x = 1; x < w - 1; ++x) {
     for (int y = 1; y < h; ++y) {
       uint8_t pixel = pixels[y * w + x];

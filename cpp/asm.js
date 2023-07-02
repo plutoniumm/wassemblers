@@ -4,8 +4,7 @@ const initialProgram =
   `int fac(int n) {
     if (n < 1) return 1;
     return n * fac(n - 1);
-}
-`;
+}`;
 
 let asmEditor = null;
 function AsmEditorComponent ( container, state ) {
@@ -94,8 +93,7 @@ $( '#opt' ).on( 'input', event => setOpt( event.target.value ) );
 
 
 const compile = debounceLazy( async () => {
-  const input = 'test.cc';
-  const output = 'test.S';
+  const [ input, output ] = [ 'test.cc', 'test.S' ];
   const contents = editor.getValue();
   const outputBuf =
     await api.compileToAssembly( { input, output, contents, triple, opt } );
