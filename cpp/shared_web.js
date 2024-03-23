@@ -16,7 +16,7 @@ document.querySelector( '#open' ).addEventListener( 'click', event => {
 } );
 document.querySelector( '#openInput' ).addEventListener( 'change', async event => {
   const file = event.target.files[ 0 ];
-  event.target.value = null; // Clear so same file can be loaded multiple times.
+  event.target.value = null;
 
   function readFile ( file ) {
     return new Promise( ( resolve, reject ) => {
@@ -35,22 +35,13 @@ function EditorComponent ( container, state ) {
   editor = ace.edit( container.getElement()[ 0 ] );
   editor.session.setMode( 'ace/mode/c_cpp' );
   editor.setKeyboardHandler( 'ace/keyboard/sublime' );
-  editor.setOption( 'fontSize', );
   editor.setValue( state.value || '' );
   editor.clearSelection();
-
-  const setFontSize = fontSize => {
-    container.extendState( { fontSize } );
-    editor.setFontSize( `${ fontSize }px` );
-  };
-
-  setFontSize( state.fontSize || 18 );
 
   editor.on( 'change', debounceLazy( event => {
     container.extendState( { value: editor.getValue() } );
   }, 500 ) );
 
-  container.on( 'fontSizeChanged', setFontSize );
   container.on( 'resize', debounceLazy( () => editor.resize(), 20 ) );
   container.on( 'destroy', () => {
     if ( editor ) {
@@ -63,18 +54,10 @@ function EditorComponent ( container, state ) {
 let term;
 Terminal.applyAddon( fit );
 function TerminalComponent ( container, state ) {
-  const setFontSize = fontSize => {
-    container.extendState( { fontSize } );
-    term.setOption( 'fontSize', fontSize );
-    term.fit();
-  };
   container.on( 'open', () => {
-    const fontSize = state.fontSize || 18;
-    term = new Terminal( { convertEol: true, disableStdin: true, fontSize } );
+    term = new Terminal( { convertEol: true, disableStdin: true } );
     term.open( container.getElement()[ 0 ] );
-    setFontSize( fontSize );
   } );
-  container.on( 'fontSizeChanged', setFontSize );
   container.on( 'resize', debounceLazy( () => term.fit(), 20 ) );
   container.on( 'destroy', () => {
     if ( term ) {
@@ -112,46 +95,6 @@ function CanvasComponent ( container, state ) {
 class Layout extends GoldenLayout {
   constructor ( options ) {
     super( options.defaultLayoutConfig, document.querySelector( '#layout' ) );
-
-    this.on( 'stackCreated', stack => {
-      const fontSizeEl = document.createElement( 'div' );
-
-      const labelEl = document.createElement( 'label' );
-      labelEl.textContent = 'FontSize: ';
-      fontSizeEl.appendChild( labelEl );
-
-      const selectEl = document.createElement( 'select' );
-      fontSizeEl.className = 'font-size';
-      fontSizeEl.appendChild( selectEl );
-
-      const sizes = [ 6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96 ];
-      for ( let size of sizes ) {
-        const optionEl = document.createElement( 'option' );
-        optionEl.value = size;
-        optionEl.textContent = size;
-        selectEl.appendChild( optionEl );
-      }
-
-      fontSizeEl.addEventListener( 'change', event => {
-        const contentItem = stack.getActiveContentItem();
-        const name = contentItem.config.componentName;
-        contentItem.container.emit( 'fontSizeChanged', event.target.value );
-      } );
-
-      stack.header.controlsContainer.prepend( fontSizeEl );
-
-      stack.on( 'activeContentItemChanged', contentItem => {
-        const name = contentItem.config.componentName;
-        const state = contentItem.container.getState();
-        if ( state && state.fontSize ) {
-          fontSizeEl.style.display = '';
-          selectEl.value = state.fontSize;
-        } else {
-          fontSizeEl.style.display = 'none';
-        }
-      } );
-    } );
-
     this.registerComponent( 'editor', EditorComponent );
     this.registerComponent( 'terminal', TerminalComponent );
   }

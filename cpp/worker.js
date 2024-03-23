@@ -5,15 +5,11 @@ let port;
 let canvas;
 let ctx2d;
 
-
 const apiOptions = {
-  async readBuffer ( filename ) {
-    return await fetch( filename )
-      .then( r => r.arrayBuffer() );
-  },
-
+  readBuffer: ( f ) => fetch( f ).then( r => r.arrayBuffer() ),
   async compileStreaming ( filename ) {
     const response = fetch( filename + ".wasm" );
+
     if ( WebAssembly.compileStreaming )
       return WebAssembly.compileStreaming( response );
     else
@@ -22,11 +18,8 @@ const apiOptions = {
       )
   },
 
-  hostWrite ( s ) {
-    port.postMessage( {
-      id: 'write',
-      data: s
-    } );
+  hostWrite ( data ) {
+    port.postMessage( { id: 'write', data } );
   }
 };
 
