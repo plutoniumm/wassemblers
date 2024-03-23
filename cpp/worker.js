@@ -2,7 +2,6 @@ self.importScripts( 'shared.js' );
 
 let api;
 let port;
-let canvas;
 let ctx2d;
 
 const apiOptions = {
@@ -59,11 +58,6 @@ const onAnyMessage = async event => {
       }
       currentApp = await api.compileLinkRun( event.data.data );
       console.log( `finished compileLinkRun. currentApp = ${ currentApp }.` );
-      break;
-
-    case 'postCanvas':
-      canvas = event.data.data;
-      ctx2d = canvas.getContext( '2d' );
       break;
   }
 };

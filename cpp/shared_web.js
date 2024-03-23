@@ -10,27 +10,6 @@ let editor;
 const run = debounceLazy( editor => api.compileLinkRun( editor.getValue() ), 100 );
 const setKeyboard = name => editor.setKeyboardHandler( `ace/keyboard/${ name }` );
 
-// Toolbar stuff
-document.querySelector( '#open' ).addEventListener( 'click', event => {
-  document.querySelector( '#openInput' ).click();
-} );
-document.querySelector( '#openInput' ).addEventListener( 'change', async event => {
-  const file = event.target.files[ 0 ];
-  event.target.value = null;
-
-  function readFile ( file ) {
-    return new Promise( ( resolve, reject ) => {
-      const reader = new FileReader();
-      reader.onerror = event => reject( event.error );
-      reader.onloadend = event => resolve( event.target.result );
-      reader.readAsText( file );
-    } );
-  }
-
-  editor.setValue( await readFile( file ) );
-  editor.clearSelection();
-} );
-
 function EditorComponent ( container, state ) {
   editor = ace.edit( container.getElement()[ 0 ] );
   editor.session.setMode( 'ace/mode/c_cpp' );
@@ -65,31 +44,6 @@ function TerminalComponent ( container, state ) {
       term = null;
     }
   } );
-}
-
-let canvas;
-function CanvasComponent ( container, state ) {
-  const canvasEl = document.createElement( 'canvas' );
-  canvasEl.className = 'canvas';
-  container.getElement()[ 0 ].appendChild( canvasEl );
-  // TODO: Figure out how to proxy canvas calls. I started to work on this, but
-  // it's trickier than I thought to handle things like rAF. I also don't think
-  // it's possible to handle ctx2d.measureText.
-  if ( canvasEl.transferControlToOffscreen ) {
-    api.postCanvas( canvasEl.transferControlToOffscreen() );
-  } else {
-    const w = 800;
-    const h = 600;
-    canvasEl.width = w;
-    canvasEl.height = h;
-    const ctx2d = canvasEl.getContext( '2d' );
-    const msg = 'offscreenCanvas is not supported :(';
-    ctx2d.font = 'bold 35px sans';
-    ctx2d.fillStyle = 'black';
-    const x = ( w - ctx2d.measureText( msg ).width ) / 2;
-    const y = ( h + 20 ) / 2;
-    ctx2d.fillText( msg, x, y );
-  }
 }
 
 class Layout extends GoldenLayout {
@@ -137,13 +91,6 @@ class WorkerAPI {
     this.port.postMessage( {
       id: 'compileLinkRun', data: contents
     } );
-  }
-
-  postCanvas ( offscreenCanvas ) {
-    this.port.postMessage(
-      { id: 'postCanvas', data: offscreenCanvas },
-      [ offscreenCanvas ]
-    );
   }
 
   onmessage ( event ) {

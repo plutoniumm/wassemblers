@@ -1,14 +1,8 @@
-const initialProgram =
-  `#include <iostream>
-
-int main() {
-  std::cout << "Hello, CppCon!\n";
-}`;
-
-// Golden Layout
 let layout = null;
 
-function initLayout () {
+async function initLayout () {
+  const start = await fetch( 'examples/03_mbrot.cc' ).then( r => r.text() );
+
   layout = new Layout( {
     configKey: 'layoutConfig',
     defaultLayoutConfig: {
@@ -24,7 +18,7 @@ function initLayout () {
             componentName: 'editor',
             componentState: {
               fontSize: 18,
-              value: initialProgram
+              value: start
             },
           },
           {
@@ -33,9 +27,6 @@ function initLayout () {
               type: 'component',
               componentName: 'terminal',
               componentState: { fontSize: 18 },
-            }, {
-              type: 'component',
-              componentName: 'canvas',
             } ]
           }
         ]
@@ -51,8 +42,6 @@ function initLayout () {
       exec: run
     } );
   } );
-
-  layout.registerComponent( 'canvas', CanvasComponent );
   layout.init();
 }
 
