@@ -26,34 +26,48 @@
       grid-area: 1 / 3 / 2 / 4;
     }
 
-    #layout {
-      grid-area: 2 / 1 / 3 / 4;
-    }
-
     .font-size {
       float: left;
       padding: 0 1em;
       font-size: small;
     }
+
+    html {
+      background: #fff;
+      filter: invert(1);
+    }
   </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/css/goldenlayout-base.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.css" />
 </head>
 
 <body>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5/ace.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/golden-layout/1.5.9/goldenlayout.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/xterm.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xterm/3.14.5/addons/fit/fit.min.js"></script>
 
   <div id="all" class="horiz">
     <button id="run">run</button>
-    <div id="layout"></div>
+    <div style="display: flex;width: 100%;">
+      <div style="display: block;flex:1" id="editor"></div>
+      <pre style="display: block;flex:1;overflow: hidden;max-width: 50%;" id="term"></pre>
+    </div>
   </div>
+
+  <script src="api.js"></script>
   <script src="shared.js"></script>
-  <script src="shared_web.js"></script>
-  <script src="web.js"></script>
+
+  <script>
+    async function initLayout () {
+      const start = await fetch( 'mbrot.cc' ).then( r => r.text() );
+
+      editor = ace.edit( 'editor' );
+      editor.session.setMode( 'ace/mode/c_cpp' );
+      editor.setKeyboardHandler( 'ace/keyboard/sublime' );
+      editor.setValue( start );
+      editor.clearSelection();
+    }
+
+    document.querySelector( '#run' )
+      .addEventListener( 'click', e => run( editor ) );
+    initLayout();
+  </script>
 </body>
 
 </html>

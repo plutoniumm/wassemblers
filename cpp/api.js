@@ -4,55 +4,35 @@ window.addEventListener( 'beforeunload', event => {
   event.returnValue = '';
 } );
 
-window.addEventListener( 'resize', event => layout.updateSize() );
+const term = document.querySelector( '#term' );
+
+function debounceLazy ( f, ms ) {
+  let waiting = 0;
+  let running = false;
+
+  const wait = async () => {
+    ++waiting;
+    await sleep( ms );
+    return --waiting === 0;
+  };
+
+  const wrapped = async ( ...args ) => {
+    if ( await wait() ) {
+      while ( running ) await wait();
+      running = true;
+      try {
+        await f( ...args );
+      } finally {
+        running = false;
+      }
+    }
+  };
+  return wrapped;
+}
 
 let editor;
 const run = debounceLazy( editor => api.compileLinkRun( editor.getValue() ), 100 );
 const setKeyboard = name => editor.setKeyboardHandler( `ace/keyboard/${ name }` );
-
-function EditorComponent ( container, state ) {
-  editor = ace.edit( container.getElement()[ 0 ] );
-  editor.session.setMode( 'ace/mode/c_cpp' );
-  editor.setKeyboardHandler( 'ace/keyboard/sublime' );
-  editor.setValue( state.value || '' );
-  editor.clearSelection();
-
-  editor.on( 'change', debounceLazy( event => {
-    container.extendState( { value: editor.getValue() } );
-  }, 500 ) );
-
-  container.on( 'resize', debounceLazy( () => editor.resize(), 20 ) );
-  container.on( 'destroy', () => {
-    if ( editor ) {
-      editor.destroy();
-      editor = null;
-    }
-  } );
-}
-
-let term;
-Terminal.applyAddon( fit );
-function TerminalComponent ( container, state ) {
-  container.on( 'open', () => {
-    term = new Terminal( { convertEol: true, disableStdin: true } );
-    term.open( container.getElement()[ 0 ] );
-  } );
-  container.on( 'resize', debounceLazy( () => term.fit(), 20 ) );
-  container.on( 'destroy', () => {
-    if ( term ) {
-      term.destroy();
-      term = null;
-    }
-  } );
-}
-
-class Layout extends GoldenLayout {
-  constructor ( options ) {
-    super( options.defaultLayoutConfig, document.querySelector( '#layout' ) );
-    this.registerComponent( 'editor', EditorComponent );
-    this.registerComponent( 'terminal', TerminalComponent );
-  }
-}
 
 class WorkerAPI {
   constructor () {
@@ -96,7 +76,7 @@ class WorkerAPI {
   onmessage ( event ) {
     switch ( event.data.id ) {
       case 'write':
-        term && term.write( event.data.data );
+        term.innerHTML += event.data.data;
         break;
 
       case 'compileToAssembly': {
