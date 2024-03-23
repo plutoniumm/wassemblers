@@ -571,12 +571,12 @@ let port;
 let ctx2d;
 
 let currentApp = null;
-const onAnyMessage = async event => {
+const onAnyMessage = async ( event ) => {
   switch ( event.data.id ) {
     case 'constructor':
       port = event.data.data;
       port.onmessage = onAnyMessage;
-      const pp = window.proxy_prefix || '';
+      const pp = event.data.proxy || '';
       api = new API( {
         readBuffer: ( f ) => fetch( pp + f ).then( r => r.arrayBuffer() ),
 
