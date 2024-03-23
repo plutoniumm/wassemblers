@@ -1,10 +1,4 @@
-// Warn on close. It's easy to accidentally hit Ctrl+W.
-window.addEventListener( 'beforeunload', event => {
-  event.preventDefault();
-  event.returnValue = '';
-} );
-
-const term = document.querySelector( '#term' );
+const sleep = t => new Promise( ( r, _ ) => setTimeout( r, t ) );
 
 function debounceLazy ( f, ms ) {
   let waiting = 0;
@@ -18,7 +12,9 @@ function debounceLazy ( f, ms ) {
 
   const wrapped = async ( ...args ) => {
     if ( await wait() ) {
-      while ( running ) await wait();
+      while ( running )
+        await wait();
+
       running = true;
       try {
         await f( ...args );
@@ -31,6 +27,8 @@ function debounceLazy ( f, ms ) {
 }
 
 let editor;
+const term = document.querySelector( '#term' );
+
 const run = debounceLazy( editor => api.compileLinkRun( editor.getValue() ), 100 );
 const setKeyboard = name => editor.setKeyboardHandler( `ace/keyboard/${ name }` );
 
@@ -93,3 +91,17 @@ class WorkerAPI {
 }
 
 const api = new WorkerAPI();
+
+async function initLayout () {
+  const start = await fetch( 'mbrot.cc' ).then( r => r.text() );
+
+  editor = ace.edit( 'editor' );
+  editor.session.setMode( 'ace/mode/c_cpp' );
+  editor.setKeyboardHandler( 'ace/keyboard/sublime' );
+  editor.setValue( start );
+  editor.clearSelection();
+}
+
+document.querySelector( '#run' )
+  .addEventListener( 'click', e => run( editor ) );
+initLayout();
