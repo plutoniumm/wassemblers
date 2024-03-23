@@ -576,14 +576,13 @@ const onAnyMessage = async ( event ) => {
     case 'constructor':
       port = event.data.data;
       port.onmessage = onAnyMessage;
-      console.log( event );
-      const pp = event?.mod || '';
-      console.log( `pp = ${ pp }` );
+      const pp = event.data?.mod || '';
       api = new API( {
         readBuffer: ( f ) => fetch( pp + f ).then( r => r.arrayBuffer() ),
 
-        compileStreaming: ( f ) =>
-          WebAssembly.compileStreaming( fetch( pp + f + ".wasm" ) ),
+        compileStreaming: ( f ) => fetch( pp + f + ".wasm" )
+          .then( r => r.arrayBuffer() )
+          .then( b => WebAssembly.compile( b ) ),
 
         hostWrite ( data ) {
           port.postMessage( { id: 'write', data } );

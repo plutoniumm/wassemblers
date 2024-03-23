@@ -1,35 +1,8 @@
-const sleep = t => new Promise( ( r, _ ) => setTimeout( r, t ) );
-
-function debounceLazy ( f, ms ) {
-  let waiting = 0;
-  let running = false;
-
-  const wait = async () => {
-    ++waiting;
-    await sleep( ms );
-    return --waiting === 0;
-  };
-
-  const wrapped = async ( ...args ) => {
-    if ( await wait() ) {
-      while ( running )
-        await wait();
-
-      running = true;
-      try {
-        await f( ...args );
-      } finally {
-        running = false;
-      }
-    }
-  };
-  return wrapped;
-}
+window.proxy_path = 'https://raw.githubusercontent.com/plutoniumm/wassemblers/master/cpp/';
 
 let editor;
 const term = document.querySelector( '#term' );
 
-const run = debounceLazy( editor => api.compileLinkRun( editor.getValue() ), 100 );
 const setKeyboard = name => editor.setKeyboardHandler( `ace/keyboard/${ name }` );
 
 class WorkerAPI {
@@ -44,7 +17,7 @@ class WorkerAPI {
     const remotePort = channel.port2;
     this.worker.postMessage( {
       id: 'constructor',
-      mod: '',
+      mod: window.proxy_path,
       data: remotePort
     },
       [ remotePort ] );
@@ -61,6 +34,7 @@ class WorkerAPI {
     } );
     this.port.postMessage( {
       id: 'compileToAssembly',
+      mod: window.proxy_path,
       responseId,
       data: options
     } );
@@ -69,7 +43,9 @@ class WorkerAPI {
 
   compileLinkRun ( contents ) {
     this.port.postMessage( {
-      id: 'compileLinkRun', data: contents
+      id: 'compileLinkRun',
+      mod: window.proxy_path,
+      data: contents
     } );
   }
 
@@ -94,6 +70,7 @@ class WorkerAPI {
 
 const api = new WorkerAPI();
 
+const run = editor => api.compileLinkRun( editor.getValue() );
 async function initLayout () {
   const start = await fetch( 'mbrot.cc' ).then( r => r.text() );
 
