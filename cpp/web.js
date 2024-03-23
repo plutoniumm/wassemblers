@@ -1,7 +1,7 @@
 let layout = null;
 
 async function initLayout () {
-  const start = await fetch( 'examples/03_mbrot.cc' ).then( r => r.text() );
+  const start = await fetch( 'mbrot.cc' ).then( r => r.text() );
 
   layout = new Layout( {
     configKey: 'layoutConfig',
@@ -34,8 +34,7 @@ async function initLayout () {
     }
   } );
 
-  layout.on( 'initialised', event => {
-    // Editor stuff
+  layout.on( 'initialised', _ => {
     editor.commands.addCommand( {
       name: 'run',
       bindKey: { win: 'Ctrl+Enter', mac: 'Command+Enter' },

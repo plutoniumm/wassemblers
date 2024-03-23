@@ -1,6 +1,4 @@
-const sleep = ( ms ) => new Promise(
-  ( resolve, _ ) => setTimeout( resolve, ms )
-);
+const sleep = t => new Promise( ( r, _ ) => setTimeout( r, t ) );
 
 function readStr ( u8, o, len = -1 ) {
   let str = '';
@@ -37,7 +35,6 @@ function debounceLazy ( f, ms ) {
 }
 
 const API = ( function () {
-
   class ProcExit extends Error {
     constructor ( code ) {
       super( `process exited with code ${ code }.` );

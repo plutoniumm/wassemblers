@@ -6,16 +6,9 @@ let ctx2d;
 
 const apiOptions = {
   readBuffer: ( f ) => fetch( f ).then( r => r.arrayBuffer() ),
-  async compileStreaming ( filename ) {
-    const response = fetch( filename + ".wasm" );
 
-    if ( WebAssembly.compileStreaming )
-      return WebAssembly.compileStreaming( response );
-    else
-      return WebAssembly.compile(
-        await response.then( r => r.arrayBuffer() )
-      )
-  },
+  compileStreaming: ( f ) =>
+    WebAssembly.compileStreaming( fetch( f + ".wasm" ) ),
 
   hostWrite ( data ) {
     port.postMessage( { id: 'write', data } );
