@@ -42,10 +42,12 @@ class WorkerAPI {
     this.port.onmessage = this.onmessage.bind( this );
 
     const remotePort = channel.port2;
-    this.worker.postMessage(
-      { id: 'constructor', data: remotePort },
-      [ remotePort ]
-    );
+    this.worker.postMessage( {
+      id: 'constructor',
+      mod: '',
+      data: remotePort
+    },
+      [ remotePort ] );
   }
 
   terminate () {

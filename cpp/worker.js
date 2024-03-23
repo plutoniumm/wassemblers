@@ -576,7 +576,9 @@ const onAnyMessage = async ( event ) => {
     case 'constructor':
       port = event.data.data;
       port.onmessage = onAnyMessage;
-      const pp = event?.mod?.proxy || '';
+      console.log( event );
+      const pp = event?.mod || '';
+      console.log( `pp = ${ pp }` );
       api = new API( {
         readBuffer: ( f ) => fetch( pp + f ).then( r => r.arrayBuffer() ),
 
