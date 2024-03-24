@@ -1,0 +1,48 @@
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🦜 Polyglot - Piratical PyScript</title>
+  <link rel="stylesheet" href="https://pyscript.net/releases/2024.3.1/core.css">
+  <script type="module" src="https://pyscript.net/releases/2024.3.1/core.js"></script>
+
+  <style>
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+    }
+
+    #packages {
+      display: flex;
+      border: 0;
+      background: #334;
+      color: #fff;
+      font-size: 18px;
+      font-family: monospace;
+      padding: 10px;
+      width: calc(100% - 10px);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="packages">
+    <span style="color: #aaa;">Packages:</span>
+    <input type="text" name="packages" value="arrr"
+      style="background: transparent;border: 0;color: #fff;font: 400 18px monospace;">
+  </div>
+
+  <input type="text" id="english" value="The English are here..." />
+  <button py-click="translate_english">Translate</button>
+  <div id="term" style="background: #000;color: #fff;font-family: monospace;"></div>
+
+  <py-config></py-config>
+
+  <script src="./io.js"></script>
+  <script type="py" src="./utils.py"></script>
+  <script type="py" src="./index.py"></script>
+</body>
+
+</html>

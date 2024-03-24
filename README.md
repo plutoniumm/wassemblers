@@ -9,14 +9,11 @@
 | --- | --- | --- |
 | **C++** | | |
 | wasm-clang (Clang) | [Custom](./Licenses/wasm-clang) | [Ben Smith](https://github.com/binji) |
-| vasm (Assembler) | [Custom](./Licenses/vasm) | [Volker Barthelmann](http://www.compilers.de/) |
 | llvm (LLVM) | [Apache-2.0](./Licenses/llvm) | [LLVM](https://llvm.org/) |
-| pib (PHP) | [Apache-2.0](./Licenses/pib) | [PHP](https://www.php.net/) |
 
 > I haven't checked yet if I'm violating any lic yet, I've included them by default for now
 
 ### Todo
-- Cpp
 - Java
 - SQL
 - Go: https://github.com/ccbrown/wasm-go-playground
