@@ -326,68 +326,16 @@ function PlaygroundOutput(el) {
   //  codeEl - code editor element
   //  outputEl - program output element
   //  runEl - run button element
-  //  fmtEl - fmt button element (optional)
-  //  fmtImportEl - fmt "imports" checkbox element (optional)
   //  toysEl - toys select element (optional)
-  //  enableHistory - enable using HTML5 history API (optional)
   //  transport - playground transport to use (default is HTTPTransport)
-  //  enableShortcuts - whether to enable shortcuts (Ctrl+S/Cmd+S to save) (default is false)
   //  enableVet - enable running vet and displaying its errors
   function playground(opts) {
     var code = $(opts.codeEl);
     var transport = opts["transport"] || new HTTPTransport(opts["enableVet"]);
     var running;
 
-    // autoindent helpers.
-    function insertTabs(n) {
-      // find the selection start and end
-      var start = code[0].selectionStart;
-      var end = code[0].selectionEnd;
-      // split the textarea content into two, and insert n tabs
-      var v = code[0].value;
-      var u = v.substr(0, start);
-      for (var i = 0; i < n; i++) {
-        u += "\t";
-      }
-      u += v.substr(end);
-      // set revised content
-      code[0].value = u;
-      // reset caret position after inserted tabs
-      code[0].selectionStart = start + n;
-      code[0].selectionEnd = start + n;
-    }
-    function autoindent(el) {
-      var curpos = el.selectionStart;
-      var tabs = 0;
-      while (curpos > 0) {
-        curpos--;
-        if (el.value[curpos] == "\t") {
-          tabs++;
-        } else if (tabs > 0 || el.value[curpos] == "\n") {
-          break;
-        }
-      }
-      setTimeout(function () {
-        insertTabs(tabs);
-      }, 1);
-    }
-
-    // NOTE(cbro): e is a jQuery event, not a DOM event.
-    function handleSaveShortcut(e) {
-      if (e.isDefaultPrevented()) return false;
-      if (!e.metaKey && !e.ctrlKey) return false;
-      if (e.key != "S" && e.key != "s") return false;
-
-      e.preventDefault();
-      return true;
-    }
-
     function keyHandler(e) {
-      if (opts.enableShortcuts && handleSaveShortcut(e)) return;
-
       if (e.keyCode == 9 && !e.ctrlKey) {
-        // tab (but not ctrl-tab)
-        insertTabs(1);
         e.preventDefault();
         return false;
       }
@@ -398,13 +346,6 @@ function PlaygroundOutput(el) {
           run();
           e.preventDefault();
           return false;
-        }
-        if (e.ctrlKey) {
-          // +control
-          fmt();
-          e.preventDefault();
-        } else {
-          autoindent(e.target);
         }
       }
       return true;
@@ -429,7 +370,6 @@ function PlaygroundOutput(el) {
         return;
       }
       pushedEmpty = true;
-      window.history.pushState(null, "", "/");
     }
     function popState(e) {
       if (e === null) {
@@ -438,17 +378,6 @@ function PlaygroundOutput(el) {
       if (e && e.state && e.state.code) {
         setBody(e.state.code);
       }
-    }
-    var rewriteHistory = false;
-    if (
-      window.history &&
-      window.history.pushState &&
-      window.addEventListener &&
-      opts.enableHistory
-    ) {
-      rewriteHistory = true;
-      code[0].addEventListener("input", inputChanged);
-      window.addEventListener("popstate", popState);
     }
 
     function setError(error) {
@@ -470,30 +399,7 @@ function PlaygroundOutput(el) {
       );
     }
 
-    function fmt() {
-      loading();
-      var data = { body: body() };
-      if ($(opts.fmtImportEl).is(":checked")) {
-        data["imports"] = "true";
-      }
-      $.ajax("/fmt", {
-        data: data,
-        type: "POST",
-        dataType: "json",
-        success: function (data) {
-          if (data.Error) {
-            setError(data.Error);
-          } else {
-            setBody(data.Body);
-            setError("");
-          }
-        },
-      });
-    }
-
     $(opts.runEl).click(run);
-    $(opts.fmtEl).click(fmt);
-
     if (opts.toysEl !== null) {
       $(opts.toysEl).bind("change", function () {
         var toy = $(this).val();
