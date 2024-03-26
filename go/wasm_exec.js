@@ -27,7 +27,7 @@
 		return workingDirectory + path.replace( /^\.\/?/, '' );
 	};
 
-	global.readFromGoFilesystem = ( path ) => filesystem[ absPath( path ) ];
+	global.readFS = ( path ) => filesystem[ absPath( path ) ];
 	global.writeFS = ( path, content ) => {
 		if ( typeof content === 'string' ) {
 			filesystem[ absPath( path ) ] = encoder.encode( content );

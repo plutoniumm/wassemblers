@@ -4,29 +4,10 @@
   <meta charset="utf-8" />
   <link rel="stylesheet" href="style.css" />
   <script src="wasm_exec.js"></script>
-  <script>
-    Object.prototype.d = function () {
-      console.log( this );
-      return this;
-    };
-    String.prototype.d = function () {
-      console.log( this );
-      return this;
-    };
-    Number.prototype.d = function () {
-      console.log( this );
-      return this;
-    };
-    Boolean.prototype.d = function () {
-      console.log( this );
-      return this;
-    };
-    const $ = ( str ) => document.querySelector( str );
-  </script>
   <script src="playground.js"></script>
 
   <script>
-
+    const $ = ( str ) => document.querySelector( str );
     document.addEventListener( "DOMContentLoaded", function () {
       if ( !WebAssembly || !WebAssembly.instantiate ) {
         throw new Error( "WebAssembly required" );
@@ -46,28 +27,25 @@
         .then( r => r.arrayBuffer() )
         .then( b => new Uint8Array( b ) );
 
-      Promise.all(
-        [
-          "prebuilt/runtime.a",
-          "prebuilt/internal/bytealg.a",
-          "prebuilt/internal/cpu.a",
-          "prebuilt/runtime/internal/atomic.a",
-          "prebuilt/runtime/internal/math.a",
-          "prebuilt/runtime/internal/sys.a",
-        ]
-          .map( ( path ) => getBuf( path ).then( b => writeFS( path, b ) ) )
-          .concat(
-            [ "compile", "link" ].map( ( cmd ) =>
-              getBuf( "cmd/" + cmd + ".wasm" ).then( b => cmds[ cmd ] = b ),
-            ),
-          ),
+      Promise.all( [
+        "prebuilt/runtime.a",
+        "prebuilt/internal/bytealg.a",
+        "prebuilt/internal/cpu.a",
+        "prebuilt/runtime/internal/atomic.a",
+        "prebuilt/runtime/internal/math.a",
+        "prebuilt/runtime/internal/sys.a",
+      ]
+        .map( ( path ) => getBuf( path ).then( b => writeFS( path, b ) ) )
+        .concat( [ "compile", "link" ].map( ( cmd ) =>
+          getBuf( "cmd/" + cmd + ".wasm" ).then( b => cmds[ cmd ] = b ),
+        ) ),
       ).then( () => {
         const decoder = new TextDecoder( "utf-8" );
         const encoder = new TextEncoder( "utf-8" );
 
         writeFS(
           "/importcfg",
-          encoder.encode( "packagefile runtime=prebuilt/runtime.a" ),
+          encoder.encode( "packagefile runtime=prebuilt/runtime.a" )
         );
 
         writeFS(
@@ -89,23 +67,18 @@
           runEl: "#run",
           transport: {
             Run: ( body, output ) => {
-              console.log( "Run" );
               $( "#run" ).setAttribute( "disabled", true );
 
               writeFS( "/main.go", body );
               output( { Kind: "start" } );
-              goStderr = ( buf ) => {
-                output( {
-                  Kind: "stderr",
-                  Body: decoder.decode( buf ),
-                } );
-              };
-              goStdout = ( buf ) => {
-                output( {
-                  Kind: "stdout",
-                  Body: decoder.decode( buf ),
-                } );
-              };
+              goStderr = ( buf ) => output( {
+                Kind: "stderr",
+                Body: decoder.decode( buf ),
+              } );
+              goStdout = ( buf ) => output( {
+                Kind: "stdout",
+                Body: decoder.decode( buf ),
+              } );
 
               exec( cmds[ "compile" ], [
                 "-p",
@@ -117,29 +90,19 @@
                 "importcfg",
                 "main.go",
               ] )
-                .then(
-                  ( code ) =>
-                    code ||
-                    exec( cmds[ "link" ], [
-                      "-importcfg",
-                      "importcfg.link",
-                      "-buildmode=exe",
-                      "main.a",
-                    ] ),
+                .then( c => c || exec( cmds[ "link" ], [
+                  "-importcfg", "importcfg.link", "-buildmode=exe", "main.a",
+                ] ),
                 )
-                .then( ( code ) => code || exec( readFromGoFilesystem( "a.out" ) ) )
-                .then( ( code ) => {
-                  output( {
-                    Kind: "end",
-                    Body: code ? "status " + code + "." : undefined,
-                  } );
-                } )
-                .catch( ( err ) => {
-                  output( {
-                    Kind: "end",
-                    Body: "wasm error: " + ( err.message || "unknown" ),
-                  } );
-                } )
+                .then( c => c || exec( readFS( "a.out" ) ) )
+                .then( c => output( {
+                  Kind: "end",
+                  Body: c ? "status " + c : undefined,
+                } ) )
+                .catch( ( err ) => output( {
+                  Kind: "end",
+                  Body: "wasm error: " + ( err.message || "'?'" ),
+                } ) )
                 .finally( () =>
                   $( "#run" ).removeAttribute( "disabled" ),
                 );
@@ -158,14 +121,12 @@
   </script>
 </head>
 
-<body itemscope itemtype="http://schema.org/CreativeWork">
+<body>
   <div id="banner">
-    <div id="head" itemprop="name">The WebAssembly Go Playground</div>
     <input type="button" value="Loading..." id="run" disabled />
   </div>
   <div id="wrap">
-    <textarea itemprop="description" id="code" name="code" autocorrect="off" autocomplete="off" autocapitalize="off"
-      spellcheck="false">
+    <textarea id="code" name="code" autocorrect="off" autocomplete="off" autocapitalize="off" spellcheck="false">
 package main
 
 func main() {
